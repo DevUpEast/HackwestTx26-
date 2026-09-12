@@ -3,21 +3,48 @@
 {% block title %}Home | Hackwest{% endblock %}
 
 {% block content %}
-<section class="hero-panel">
-	<p class="eyebrow">Hackwest TX 26</p>
-	{% if user %}
-		<h1>Welcome back, {{ user.username }}.</h1>
-		<p>Your account is connected to the Hackwest database.</p>
-		<form method="post" action="{{ url_for('logout') }}">
-			<button class="button button-dark" type="submit">Log out</button>
-		</form>
-	{% else %}
-		<h1>Build something worth sharing.</h1>
-		<p>Create an account to save your work and join the Hackwest community.</p>
-		<div class="button-row">
-			<a class="button button-dark" href="{{ url_for('signup') }}">Create account</a>
-			<a class="button button-light" href="{{ url_for('login') }}">Log in</a>
-		</div>
-	{% endif %}
+<section class="physics-board" id="physics-board" aria-label="Community posts">
+	<div class="board-grid" aria-hidden="true"></div>
+	<div class="edge-folder edge-folder-left" data-edge-folder="left" aria-hidden="true">
+		<span>FILE LEFT</span>
+	</div>
+	<div class="edge-folder edge-folder-right" data-edge-folder="right" aria-hidden="true">
+		<span>FILE RIGHT</span>
+	</div>
+	{% for post in posts %}
+		<article class="post-card post-card-{{ loop.index0 % 5 }}" data-post-card
+			data-title="{{ post.content|e }}" data-author="@{{ post.user.username|e }}"
+			data-tags="{{ post.tags|e }}">
+			<img class="post-image" src="https://picsum.photos/seed/hackwest-{{ post.id }}/640/280" alt="Abstract preview for {{ post.tags }}" loading="lazy">
+			<div class="post-card-top">
+				<span class="post-index">{{ '%02d'|format(loop.index) }}</span>
+				<button class="favorite-button" type="button" aria-label="Favorite post">+</button>
+			</div>
+			<p class="post-content">{{ post.content }}</p>
+			<div class="post-footer">
+				<span>@{{ post.user.username }}</span>
+				<span>{{ post.tags.split(', ')|join(' / ') }}</span>
+			</div>
+		</article>
+	{% endfor %}
 </section>
+
+<aside class="article-modal" id="article-modal" aria-hidden="true" role="dialog" aria-modal="true">
+	<div class="article-modal-scrim" data-close-article></div>
+	<article class="article-sheet">
+		<div class="article-sheet-top">
+			<span class="eyebrow">Community dispatch</span>
+			<button class="modal-close" type="button" data-close-article aria-label="Close article">x</button>
+		</div>
+		<p class="article-kicker" id="article-tags"></p>
+		<h2 id="article-title"></h2>
+		<p class="article-body">An idea is a small object with momentum. Move it around, look at it from another angle, and let the useful parts become clearer. This post is part of the living Hackwest community board.</p>
+		<p class="article-author" id="article-author"></p>
+	</article>
+</aside>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+<script src="{{ url_for('static', filename='board.js', v='3') }}"></script>
 {% endblock %}

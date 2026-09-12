@@ -6,7 +6,8 @@
     <title>{% block title %}Hackwest{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body class="{% if request.endpoint == 'home' %}board-page{% endif %}">
+    {% if request.endpoint != 'home' %}
     <header class="site-header">
         <a class="brand" href="{{ url_for('home') }}">HACKWEST<span>TX26</span></a>
         <nav>
@@ -20,6 +21,7 @@
             {% endif %}
         </nav>
     </header>
+    {% endif %}
     <main class="page-shell">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -32,5 +34,6 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

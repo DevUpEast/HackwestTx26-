@@ -61,11 +61,46 @@ with app.app_context():
     db.create_all()
 
 
+def seed_synthetic_data():
+    if Post.query.count() > 0:
+        return
+
+    demo_user = User.query.filter_by(username='hackwest_demo').first()
+    if demo_user is None:
+        demo_user = User(
+            username='hackwest_demo',
+            password_hash=generate_password_hash('hackwest-demo-password'),
+            settings=Settings(theme='lime'),
+        )
+        db.session.add(demo_user)
+        db.session.flush()
+
+    posts = [
+        ('Make onboarding feel like a first win, not a form.', 'product, onboarding'),
+        ('A community grows faster when sharing feels effortless.', 'community, growth'),
+        ('What if every rough idea had a place to land?', 'ideas, collaboration'),
+        ('Small experiments compound into surprising products.', 'experiments, build'),
+        ('Design for the moment someone decides to come back.', 'design, retention'),
+        ('The best tools leave room for people to surprise you.', 'tools, creativity'),
+        ('Ship the useful version, then listen closely.', 'shipping, feedback'),
+        ('A good constraint can turn noise into direction.', 'focus, strategy'),
+    ]
+    db.session.add_all(
+        [Post(user_id=demo_user.id, content=content, tags=tags) for content, tags in posts]
+    )
+    db.session.commit()
+
+
+with app.app_context():
+    seed_synthetic_data()
+
+
 @app.route('/')
 @app.route('/home')
 def home():
     user = db.session.get(User, session['user_id']) if 'user_id' in session else None
-    return render_template('index.html', user=user)
+    posts = Post.query.order_by(Post.id.desc()).all()
+    return render_template('index.html', user=user, posts=posts)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
