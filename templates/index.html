@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Hackwest{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+	<p class="eyebrow">Hackwest TX 26</p>
+	{% if user %}
+		<h1>Welcome back, {{ user.username }}.</h1>
+		<p>Your account is connected to the Hackwest database.</p>
+		<form method="post" action="{{ url_for('logout') }}">
+			<button class="button button-dark" type="submit">Log out</button>
+		</form>
+	{% else %}
+		<h1>Build something worth sharing.</h1>
+		<p>Create an account to save your work and join the Hackwest community.</p>
+		<div class="button-row">
+			<a class="button button-dark" href="{{ url_for('signup') }}">Create account</a>
+			<a class="button button-light" href="{{ url_for('login') }}">Log in</a>
+		</div>
+	{% endif %}
+</section>
+{% endblock %}
