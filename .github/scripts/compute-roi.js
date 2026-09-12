@@ -10,17 +10,17 @@
 // skipped and their ROI is left untouched.
 
 const PRIORITY_WEIGHT = {
-  "P0 - Critical": 4,
-  "P1 - High": 3,
-  "P2 - Medium": 2,
-  "P3 - Low": 1,
+  Urgent: 4,
+  High: 3,
+  Medium: 2,
+  Low: 1,
 };
 
 const EFFORT_WEIGHT = {
-  Low: 1,
-  Medium: 2,
-  High: 3,
-  Urgent: 5,
+  Critical: 5,
+  Hard: 3,
+  Mediocre: 2,
+  Simple: 1,
 };
 
 module.exports = async ({ github, core, owner, projectNumber }) => {
