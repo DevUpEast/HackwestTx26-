@@ -17,11 +17,10 @@ const PRIORITY_WEIGHT = {
 };
 
 const EFFORT_WEIGHT = {
-  XS: 1,
-  S: 2,
-  M: 3,
-  L: 5,
-  XL: 8,
+  Low: 1,
+  Medium: 2,
+  High: 3,
+  Urgent: 5,
 };
 
 module.exports = async ({ github, core, owner, projectNumber }) => {
