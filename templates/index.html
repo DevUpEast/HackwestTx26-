@@ -4,26 +4,27 @@
 
 {% block content %}
 <section class="physics-board" id="physics-board" aria-label="Community posts">
+	<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme">DARK</button>
 	<div class="board-grid" aria-hidden="true"></div>
 	<div class="edge-folder edge-folder-left" data-edge-folder="left" aria-hidden="true">
-		<span>FILE LEFT</span>
+		<span>DISLIKE</span>
 	</div>
 	<div class="edge-folder edge-folder-right" data-edge-folder="right" aria-hidden="true">
-		<span>FILE RIGHT</span>
+		<span>LIKE</span>
 	</div>
 	{% for post in posts %}
-		<article class="post-card post-card-{{ loop.index0 % 5 }}" data-post-card
-			data-title="{{ post.content|e }}" data-author="@{{ post.user.username|e }}"
-			data-tags="{{ post.tags|e }}">
-			<img class="post-image" src="https://picsum.photos/seed/hackwest-{{ post.id }}/640/280" alt="Abstract preview for {{ post.tags }}" loading="lazy">
-			<div class="post-card-top">
-				<span class="post-index">{{ '%02d'|format(loop.index) }}</span>
-				<button class="favorite-button" type="button" aria-label="Favorite post">+</button>
-			</div>
-			<p class="post-content">{{ post.content }}</p>
+		<article class="post-card post-card-{{ loop.index0 % 5 }}{% if post.is_ad %} ad-card{% endif %}" data-post-card
+			data-post-id="{{ post.id if not post.is_ad else '' }}" data-ad="{{ 'true' if post.is_ad else 'false' }}"
+			data-title="{{ post.title|e }}" data-author="{{ post.author_name|e }}"
+			data-tags="{{ post.tags|e }}" data-body-html="{{ post.safe_body_html|e }}"
+			data-image-url="{{ post.image_url|e if post.image_url else '' }}"
+			data-priority="{{ post.priority }}">
+			<span class="card-shape card-shape-{{ loop.index0 % 5 }}" aria-hidden="true"></span>
+			{% if post.is_ad %}<span class="ad-label">SPONSORED</span>{% endif %}
+			<p class="post-content">{{ post.title }}</p>
 			<div class="post-footer">
-				<span>@{{ post.user.username }}</span>
-				<span>{{ post.tags.split(', ')|join(' / ') }}</span>
+				<span>{{ post.author_name }}</span>
+				<span class="post-priority">P{{ post.priority }} / {{ post.tags.split(', ')|join(' / ') }}</span>
 			</div>
 		</article>
 	{% endfor %}
@@ -33,18 +34,22 @@
 	<div class="article-modal-scrim" data-close-article></div>
 	<article class="article-sheet">
 		<div class="article-sheet-top">
-			<span class="eyebrow">Community dispatch</span>
-			<button class="modal-close" type="button" data-close-article aria-label="Close article">x</button>
+			<span class="article-index">READ / <span id="article-tags"></span></span>
+			<button class="modal-close" type="button" data-close-article aria-label="Close article">Close</button>
 		</div>
-		<p class="article-kicker" id="article-tags"></p>
-		<h2 id="article-title"></h2>
-		<p class="article-body">An idea is a small object with momentum. Move it around, look at it from another angle, and let the useful parts become clearer. This post is part of the living Hackwest community board.</p>
-		<p class="article-author" id="article-author"></p>
+		<div class="article-layout">
+			<div class="article-copy">
+				<h2 id="article-title"></h2>
+				<img class="article-inline-image" id="article-image" alt="" hidden>
+				<div class="article-body" id="article-body">An idea is a small object with momentum. Move it around, look at it from another angle, and let the useful parts become clearer.</div>
+				<p class="article-author" id="article-author"></p>
+			</div>
+			<div class="article-visual" aria-hidden="true"><span></span></div>
+		</div>
 	</article>
 </aside>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script src="{{ url_for('static', filename='board.js', v='3') }}"></script>
+<script src="{{ url_for('static', filename='board.js', v='22') }}"></script>
 {% endblock %}

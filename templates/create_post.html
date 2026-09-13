@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post | Popple{% endblock %}
+
+{% block content %}
+<section class="create-post-page">
+    <form class="create-post-form" method="post">
+        <label for="title">Title</label>
+        <input id="title" name="title" maxlength="255" required placeholder="A thought with momentum">
+
+        <label for="body_html">Article Markdown</label>
+        <div class="markdown-toolbar" role="toolbar" aria-label="Markdown formatting">
+            <button type="button" data-markdown="**bold**"><strong>B</strong></button>
+            <button type="button" data-markdown="*italic*"><em>I</em></button>
+            <button type="button" data-markdown="# Heading">H</button>
+            <button type="button" data-markdown="- List item">List</button>
+            <button type="button" data-markdown="[link](https://example.com)">Link</button>
+            <button type="button" data-markdown="`code`">Code</button>
+        </div>
+        <textarea id="body_html" name="body_html" rows="14" required placeholder="# A useful headline\n\nWrite the longer story here. Use **bold**, lists, links, and blockquotes."></textarea>
+        <div class="markdown-preview-label">Live preview</div>
+        <article class="markdown-preview" id="markdown-preview" aria-live="polite"></article>
+
+        <label for="tags">Tags</label>
+        <input id="tags" name="tags" placeholder="ideas, community">
+
+        <label for="image_url">Inline image URL <span class="field-hint">optional</span></label>
+        <input id="image_url" name="image_url" type="url" placeholder="https://example.com/image.jpg">
+
+        <div class="button-row">
+            <button class="button button-dark" type="submit">Publish post</button>
+            <a class="button button-light" href="{{ url_for('home') }}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(() => {
+    const editor = document.querySelector('#body_html');
+    const preview = document.querySelector('#markdown-preview');
+    if (!editor || !preview) return;
+
+    const inline = (text) => text
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2">$1</a>');
+
+    const render = () => {
+        const escaped = editor.value.replace(/[&<>]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[character]));
+        preview.innerHTML = inline(escaped)
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+            .replace(/^(?:- .+(?:\n|$))+/gm, (block) => `<ul>${block.trim().split('\n').map((line) => `<li>${line.slice(2)}</li>`).join('')}</ul>`)
+            .split(/\n\s*\n/).map((block) => block.match(/^<(h2|h3|blockquote|ul)/) ? block : `<p>${block.replace(/\n/g, '<br>')}</p>`).join('')
+            .replace(/<p>(<h[23]|<blockquote|<ul)/g, '$1')
+            .replace(/(<\/h[23]>|<\/blockquote>|<\/ul>)<\/p>/g, '$1');
+    };
+
+    document.querySelectorAll('[data-markdown]').forEach((button) => button.addEventListener('click', () => {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const selected = editor.value.slice(start, end) || button.dataset.markdown;
+        const marker = button.dataset.markdown.replace(/[^*`#[\]()].*$/, '').trim();
+        const insertion = selected === button.dataset.markdown ? selected : `${marker}${selected}${marker}`;
+        editor.setRangeText(insertion, start, end, 'select');
+        editor.focus();
+        render();
+    }));
+    editor.addEventListener('input', render);
+    render();
+})();
+</script>
+{% endblock %}

@@ -5,9 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Hackwest{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        document.documentElement.classList.toggle('theme-dark', localStorage.getItem('hackwest-theme') === 'dark');
+    </script>
 </head>
 <body class="{% if request.endpoint == 'home' %}board-page{% endif %}">
-    {% if request.endpoint != 'home' %}
+    <script>
+        document.body.classList.toggle('theme-dark', localStorage.getItem('hackwest-theme') === 'dark');
+    </script>
+    {% if request.endpoint == 'home' %}
+    <header class="popple-header">
+        <a class="popple-logo" href="{{ url_for('home') }}">Popple</a>
+        <div class="popple-header-actions">
+            <details class="settings-menu">
+                <summary class="settings-button" aria-label="Open settings" title="Open settings"><span aria-hidden="true">⚙</span></summary>
+                <div class="settings-panel">
+                    <label class="showcase-setting" for="showcase-count">Show
+                        <select id="showcase-count" aria-label="Number of cards to showcase">
+                            {% for count in range(3, 11) %}<option value="{{ count }}">{{ count }}</option>{% endfor %}
+                        </select>
+                        cards
+                    </label>
+                    <label class="showcase-setting" for="board-mode">Mode
+                        <select id="board-mode" aria-label="Board mode">
+                            <option value="grid">Grid</option>
+                            <option value="physics">Physics</option>
+                        </select>
+                    </label>
+                    {% if session.get('user_id') %}
+                        {% if user and user.is_admin %}
+                            <a class="settings-logout" href="{{ url_for('admin_settings') }}">Ad settings</a>
+                        {% endif %}
+                        <form method="post" action="{{ url_for('logout') }}">
+                            <button class="settings-logout" type="submit">Log out</button>
+                        </form>
+                    {% else %}
+                        <a class="settings-logout" href="{{ url_for('login') }}">Log in</a>
+                    {% endif %}
+                </div>
+            </details>
+            <a class="create-post-button" href="{{ url_for('create_post') if session.get('user_id') else url_for('login') }}" aria-label="{{ 'Create a post' if session.get('user_id') else 'Log in to create a post' }}" title="{{ 'Create a post' if session.get('user_id') else 'Log in to create a post' }}"><span aria-hidden="true">✎</span></a>
+        </div>
+    </header>
+    {% else %}
     <header class="site-header">
         <a class="brand" href="{{ url_for('home') }}">HACKWEST<span>TX26</span></a>
         <nav>
@@ -27,13 +67,21 @@
             {% if messages %}
                 <div class="flash-stack" aria-live="polite">
                     {% for category, message in messages %}
-                        <p class="flash flash-{{ category }}">{{ message }}</p>
+                        <p class="flash flash-{{ category }} flash-toast">{{ message }}</p>
                     {% endfor %}
                 </div>
             {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
+        <script>
+            document.querySelectorAll('.flash-toast').forEach((toast) => {
+                window.setTimeout(() => {
+                    toast.classList.add('is-dismissed');
+                    window.setTimeout(() => toast.remove(), 260);
+                }, 3600);
+            });
+        </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

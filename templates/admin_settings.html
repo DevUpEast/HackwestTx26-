@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Ad Settings | Popple{% endblock %}
+
+{% block content %}
+<section class="admin-settings-page">
+    <p class="eyebrow">Admin controls</p>
+    <h1>Ad pacing</h1>
+    <p class="muted">Ads begin after the delay, then increase during the ramp until the board is fully sponsored.</p>
+    <form class="admin-settings-form" method="post">
+        <label class="toggle-row" for="enabled">
+            <span>Enable sponsored cards</span>
+            <input id="enabled" name="enabled" type="checkbox" {% if settings.enabled %}checked{% endif %}>
+        </label>
+        <label for="delay_seconds">Start after (seconds)</label>
+        <input id="delay_seconds" name="delay_seconds" type="number" min="0" step="1" value="{{ settings.delay_seconds }}" required>
+        <label for="ramp_seconds">Reach all ads over (seconds)</label>
+        <input id="ramp_seconds" name="ramp_seconds" type="number" min="0" step="1" value="{{ settings.ramp_seconds }}" required>
+        <div class="button-row">
+            <button class="button button-dark" type="submit">Save pacing</button>
+            <a class="button button-light" href="{{ url_for('home') }}">Back to board</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
