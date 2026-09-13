@@ -290,11 +290,11 @@ with app.app_context():
 
 
 def seed_synthetic_data():
-    demo_user = User.query.filter_by(username='hackwest_demo').first()
+    demo_user = User.query.filter_by(username='Admin').first()
     if demo_user is None:
         demo_user = User(
-            username='hackwest_demo',
-            password_hash=generate_password_hash('hackwest-demo-password'),
+            username='Admin',
+            password_hash=generate_password_hash('password1234'),
             is_admin=True,
             settings=Settings(theme='lime'),
         )
