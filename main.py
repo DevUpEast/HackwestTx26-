@@ -16,6 +16,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-m
 
 db = SQLAlchemy(app)
 
+# A gap this long between board views starts the ad pacing over from the delay.
+BOARD_IDLE_RESET_SECONDS = 300
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -388,11 +391,40 @@ def recommended_posts(user, limit=10):
     return selected
 
 
+def ad_pacing_signature(settings):
+    return '{}:{}:{}'.format(
+        int(bool(settings.enabled)), settings.delay_seconds, settings.ramp_seconds,
+    )
+
+
+def board_elapsed_seconds(settings):
+    """Seconds since this browser's ad clock started.
+
+    The clock restarts when the pacing settings change and when the board has
+    not been viewed for a while, so the delay is honoured on every fresh visit
+    instead of only the first one in a browser session.
+    """
+    now = time.time()
+    started_at = session.get('board_started_at')
+    last_seen = session.get('board_last_seen') or started_at
+    signature = ad_pacing_signature(settings)
+    restart = (
+        started_at is None
+        or session.get('board_pacing') != signature
+        or now - last_seen > BOARD_IDLE_RESET_SECONDS
+    )
+    if restart:
+        started_at = now
+        session['board_started_at'] = started_at
+        session['board_pacing'] = signature
+    session['board_last_seen'] = now
+    return max(0, now - started_at)
+
+
 def ad_count_for(settings, item_limit):
     if not settings.enabled or item_limit <= 0:
         return 0
-    started_at = session.setdefault('board_started_at', time.time())
-    elapsed = max(0, time.time() - started_at)
+    elapsed = board_elapsed_seconds(settings)
     if elapsed < settings.delay_seconds:
         return 0
     if settings.ramp_seconds <= 0:

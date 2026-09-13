@@ -53,7 +53,7 @@ body {
 	color: var(--ink);
 	background: var(--paper);
 	font-family: 'Space Grotesk', sans-serif;
-	border: 1px solid rgba(23, 34, 30, 0.58);
+	border: 1px solid color-mix(in srgb, var(--ink) 58%, transparent);
 }
 
 body::before {
@@ -681,7 +681,7 @@ nav {
 	margin: 0 auto;
 	padding: 48px;
 	border: 1px solid var(--line);
-	background: rgba(255, 255, 255, 0.38);
+	background: color-mix(in srgb, var(--card-bg) 38%, transparent);
 }
 
 .eyebrow {
@@ -710,7 +710,7 @@ p {
 }
 
 .muted {
-	color: rgba(23, 34, 30, 0.65);
+	color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .button-row {
@@ -756,7 +756,7 @@ p {
 	border: 1px solid var(--line);
 	padding: 13px;
 	color: var(--ink);
-	background: rgba(255, 255, 255, 0.65);
+	background: color-mix(in srgb, var(--card-bg) 65%, transparent);
 	font: 1rem 'Space Grotesk', sans-serif;
 }
 
