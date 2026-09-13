@@ -16,3 +16,11 @@ Some problems we ran into were finding out how to properly implement various bac
 ## What we learned
   There's lots to look forward to
 ## What's next for Popple
+
+## Instructions
+__
+Install Python from: https://www.python.org/downloads/
+Run `git clone https://github.com/DevUpEast/HackwestTx26-`
+Run `cd ./HackwestTx26-`
+Run `pip install -r ./requirements.txt`
+
